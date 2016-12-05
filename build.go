@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,5 +26,14 @@ func createExec(conf Config) error {
 	}
 
 	currentExecName := filepath.Base(wd)
+
+	fi, err := os.Stat(currentExecName)
+	if err != nil {
+		return err
+	}
+
+	if fi.IsDir() {
+		return errors.New("%v should be a binary: dir")
+	}
 	return os.Rename(currentExecName, execName)
 }

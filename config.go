@@ -36,12 +36,13 @@ func defaultConfig() Config {
 	name := filepath.Base(wd)
 
 	return Config{
-		Name:         name,
-		Version:      "1.0.0.0",
-		ID:           fmt.Sprintf("%v.%v", os.Getenv("USER"), name),
-		OSMinVersion: "10.12",
-		Role:         "None",
-		Sandbox:      true,
+		Name:           name,
+		Version:        "1.0.0.0",
+		ID:             fmt.Sprintf("%v.%v", os.Getenv("USER"), name),
+		OSMinVersion:   "10.12",
+		Role:           "None",
+		Sandbox:        true,
+		SupportedFiles: []string{},
 	}
 }
 
