@@ -23,7 +23,7 @@ type Config struct {
 	ID             string   `json:"id"`              // UTI in reverse-DNS format with (A-Za-z0-9), (-) and (.) eg com.murlok.Hello-World
 	OSMinVersion   string   `json:"os-min-version"`  // >= 10.12
 	Role           string   `json:"role"`            // Editor | Viewer | Shell | None
-	Sandbox        bool     `json:"sandbox"`         // Sandobox mode
+	Sandbox        bool     `json:"sandbox"`         // Sandbox mode
 	SupportedFiles []string `json:"supported-files"` // Slice of UTI representing types of the supported files
 }
 
