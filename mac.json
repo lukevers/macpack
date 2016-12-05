@@ -1,0 +1,10 @@
+{
+    "name": "macpack",
+    "version": "1.0.0.0",
+    "icon": "",
+    "id": "maxence.macpack",
+    "os-min-version": "10.12",
+    "role": "None",
+    "sandbox": true,
+    "supported-files": null
+}
