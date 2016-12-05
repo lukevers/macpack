@@ -1,4 +1,4 @@
-package macpack
+package main
 
 import (
 	"encoding/json"

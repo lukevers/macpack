@@ -1,4 +1,4 @@
-package macpack
+package main
 
 import "testing"
 import "os"
@@ -24,6 +24,7 @@ func TestSaveConfig(t *testing.T) {
 func TestReadConfig(t *testing.T) {
 	// Existing conf.
 	saveConfig(defaultConfig(), confName)
+	defer os.Remove(confName)
 
 	conf, err := readConfig(confName)
 	if err != nil {
