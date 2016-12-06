@@ -11,10 +11,17 @@ import (
 func main() {
 	var force bool
 	var verb bool
+	var sass bool
 
 	flag.BoolVar(&force, "f", false, "Forces the copy of the whole resources directory rather than sync it.")
 	flag.BoolVar(&verb, "v", false, "Verbose mode.")
+	flag.BoolVar(&sass, "sass", false, "exec sass --watch resources/scss:resources/css")
 	flag.Parse()
+
+	if sass {
+		launchSass()
+		return
+	}
 
 	if err := build(false); err != nil {
 		log.Error(err)
