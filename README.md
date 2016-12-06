@@ -17,10 +17,12 @@ package main
 ```
 
 launch:
-
 ```
 macpack
 ```
+**macpack** will automatically create these directories:
+- resources
+- resources/css
 
 ## Customize build
 Build can be customized by providing a JSON named mac.json.
@@ -39,3 +41,17 @@ Build can be customized by providing a JSON named mac.json.
 ```
 
 This JSON is auto generated if nonexistent.
+
+## Sass
+[Sass](http://sass-lang.com/guide) can be used with:
+```
+macpack -sass
+```
+
+This launches sass with watch mode.
+**.scss** from ```resources/scss``` will be converted to **.css** in ```resources/css```.
+
+Require sass to be installed:
+```
+sudo gem install sass
+```
