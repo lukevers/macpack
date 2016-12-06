@@ -4,10 +4,9 @@ import "path/filepath"
 import "os"
 
 func syncResources(conf Config, force bool, verbose bool) error {
-	if _, err := os.Stat("resources"); err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
+	cssName := filepath.Join("resources", "css")
+
+	if err := os.MkdirAll(cssName, os.ModeDir|0755); err != nil {
 		return err
 	}
 
