@@ -11,7 +11,7 @@ go get -u github.com/murlokswarm/macpack
 ```
 
 ## Usage
-In a directory where the package name is main,
+In a directory where the package name is ```main```,
 ```go
 package main
 ```
