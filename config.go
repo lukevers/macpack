@@ -17,14 +17,16 @@ const (
 
 // Config represents the configuration of the app to be packaged.
 type Config struct {
-	Name           string   `json:"name"`            // Name displayed in menu and dock
-	Version        string   `json:"version"`         // 0.0.0.0
-	Icon           string   `json:"icon"`            // .png
-	ID             string   `json:"id"`              // UTI in reverse-DNS format with (A-Za-z0-9), (-) and (.) eg com.murlok.Hello-World
-	OSMinVersion   string   `json:"os-min-version"`  // >= 10.12
-	Role           string   `json:"role"`            // Editor | Viewer | Shell | None
-	Sandbox        bool     `json:"sandbox"`         // Sandbox mode
-	SupportedFiles []string `json:"supported-files"` // Slice of UTI representing types of the supported files
+	Name                   string   `json:"name"`                     // Name displayed in menu and dock
+	Version                string   `json:"version"`                  // 0.0.0.0
+	Icon                   string   `json:"icon"`                     // .png
+	DevRegion              string   `json:"dev-region"`               // Development region eg "en"
+	ID                     string   `json:"id"`                       // UTI in reverse-DNS format with (A-Za-z0-9), (-) and (.) eg com.murlok.Hello-World
+	MacOSXDeploymentTarget string   `json:"macosx-deployment-target"` // >= 10.12
+	Copyright              string   `json:"copyright"`                // Copyright © 2017 Maxence Charriere. All rights reserved.
+	Role                   string   `json:"role"`                     // Editor | Viewer | Shell | None
+	Sandbox                bool     `json:"sandbox"`                  // Sandbox mode
+	SupportedFiles         []string `json:"supported-files"`          // Slice of UTI representing types of the supported files
 }
 
 func defaultConfig() Config {
@@ -36,10 +38,11 @@ func defaultConfig() Config {
 	name := filepath.Base(wd)
 
 	return Config{
-		Name:           name,
-		Version:        "1.0.0.0",
-		ID:             fmt.Sprintf("%v.%v", os.Getenv("USER"), name),
-		OSMinVersion:   "10.12",
+		Name:      name,
+		Version:   "1.0.0.0",
+		DevRegion: "en",
+		ID:        fmt.Sprintf("%v.%v", os.Getenv("USER"), name),
+		MacOSXDeploymentTarget: "10.12",
 		Role:           "None",
 		Sandbox:        true,
 		SupportedFiles: []string{},
@@ -76,7 +79,7 @@ func checkConfig(conf Config) error {
 	validName := regexp.MustCompile(`^([A-Za-z0-9_]|[\-])+$`)
 	validVersion := regexp.MustCompile(`^[0-9]+([\.][0-9]+){3}$`)
 	validUTI := regexp.MustCompile(`^([A-Za-z0-9]|[\-]|[\.])+$`)
-	validOSVersion := regexp.MustCompile(`^[0-9]+[\.][0-9]+$`)
+	validMinVersion := regexp.MustCompile(`^[0-9]+[\.][0-9]+$`)
 
 	if !validName.MatchString(conf.Name) {
 		return fmt.Errorf("name from config must contain alphanumeric characters, '_' or '-' : %v", conf.Name)
@@ -94,17 +97,17 @@ func checkConfig(conf Config) error {
 		return fmt.Errorf("role from config should be Editor | Viewer | Shell | None:%v", conf.Role)
 	}
 
-	if !validOSVersion.MatchString(conf.OSMinVersion) {
-		return fmt.Errorf("os-min-version from config must follow the pattern x.x where x is a non negative number: %v", conf.OSMinVersion)
+	if !validMinVersion.MatchString(conf.MacOSXDeploymentTarget) {
+		return fmt.Errorf("os-min-version from config must follow the pattern x.x where x is a non negative number: %v", conf.MacOSXDeploymentTarget)
 	}
 
-	osMinVersion := strings.Split(conf.OSMinVersion, ".")
+	macOSDeploymentTarget := strings.Split(conf.MacOSXDeploymentTarget, ".")
 
-	if maj, _ := strconv.Atoi(osMinVersion[0]); maj < 10 {
+	if maj, _ := strconv.Atoi(macOSDeploymentTarget[0]); maj < 10 {
 		return fmt.Errorf("major revision in os-min-version from config cannot be under 10:%v", maj)
 	}
 
-	if min, _ := strconv.Atoi(osMinVersion[1]); min < 12 {
+	if min, _ := strconv.Atoi(macOSDeploymentTarget[1]); min < 12 {
 		return fmt.Errorf("minor revision in os-min-version from config cannot be under 12:%v", min)
 	}
 

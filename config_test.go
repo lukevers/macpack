@@ -130,30 +130,30 @@ func TestCheckConfigRole(t *testing.T) {
 	}
 }
 
-func TestCheckConfigOSMinVersion(t *testing.T) {
+func TestCheckConfigMacOSXDeploymentTarget(t *testing.T) {
 	conf := defaultConfig()
-	conf.OSMinVersion = "10.15"
+	conf.MacOSXDeploymentTarget = "10.15"
 
 	if err := checkConfig(conf); err != nil {
 		t.Error(err)
 	}
 
-	conf.OSMinVersion = ""
+	conf.MacOSXDeploymentTarget = ""
 	if err := checkConfig(conf); err == nil {
 		t.Error("checkConfig should return an error")
 	}
 
-	conf.OSMinVersion = "1.a"
+	conf.MacOSXDeploymentTarget = "1.a"
 	if err := checkConfig(conf); err == nil {
 		t.Error("checkConfig should return an error")
 	}
 
-	conf.OSMinVersion = "9.12"
+	conf.MacOSXDeploymentTarget = "9.12"
 	if err := checkConfig(conf); err == nil {
 		t.Error("checkConfig should return an error")
 	}
 
-	conf.OSMinVersion = "10.11"
+	conf.MacOSXDeploymentTarget = "10.11"
 	if err := checkConfig(conf); err == nil {
 		t.Error("checkConfig should return an error")
 	}
