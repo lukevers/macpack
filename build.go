@@ -8,7 +8,7 @@ import (
 )
 
 func build(verbose bool) error {
-	args := []string{"build"}
+	args := []string{"build", "-ldflags", "-s"}
 
 	if verbose {
 		args = append(args, "-v")
