@@ -121,7 +121,7 @@ func (c Config) check() error {
 		return fmt.Errorf("deployment-target from config must follow the pattern x.x where x is a non negative number: %v", c.DeploymentTarget)
 	}
 
-	macOSDeploymentTarget := strings.Split(c.DeploymentTarget, "")
+	macOSDeploymentTarget := strings.Split(c.DeploymentTarget, ".")
 	if maj, _ := strconv.Atoi(macOSDeploymentTarget[0]); maj < 10 {
 		return fmt.Errorf("major revision in deployment-target from config cannot be under 10:%v", maj)
 	}
