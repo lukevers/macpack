@@ -39,7 +39,7 @@ const plistTmpl = `
 	<string>{{.Version}}</string>
 
 	<key>LSMinimumSystemVersion</key>
-	<string>{{.MacOSXDeploymentTarget}}</string>
+	<string>{{.DeploymentTarget}}</string>
 
 	<key>NSHumanReadableCopyright</key>
 	<string>{{html .Copyright}}</string>
@@ -67,28 +67,23 @@ const plistTmpl = `
 			</array>
 		</dict>
 	</array>
-
-	{{if .Sandbox}}<key>com.apple.security.app-sandbox</key>
-    <true/>{{end}}
-
 </dict>
 </plist>
     `
 
-func createPlist(conf Config) error {
-	plistName := filepath.Join(conf.Name+".app", "Contents", "Info.plist")
-
+func createPlist() error {
+	plistName := filepath.Join(config.Name+".app", "Contents", "Info.plist")
 	f, err := os.Create(plistName)
 	if err != nil {
 		return err
 	}
-
 	defer f.Close()
 
+	conf := config
 	if len(conf.Icon) != 0 {
-		conf.Icon = epureIconName(conf.Icon)
+		conf.Icon = epureIconName(config.Icon)
 	}
 
 	tmpl := template.Must(template.New("plist").Parse(plistTmpl))
-	return tmpl.Execute(f, conf)
+	return tmpl.Execute(f, config)
 }

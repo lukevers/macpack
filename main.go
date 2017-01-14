@@ -1,67 +1,74 @@
 package main
 
 import (
-	"os"
+	"fmt"
 
-	"flag"
+	"github.com/segmentio/conf"
+)
 
-	"github.com/murlokswarm/log"
+var (
+	config = defaultConfig()
 )
 
 func main() {
-	var force bool
-	var verb bool
-	var sass bool
-
-	flag.BoolVar(&force, "f", false, "Forces the copy of the whole resources directory rather than sync it.")
-	flag.BoolVar(&verb, "v", false, "Verbose mode.")
-	flag.BoolVar(&sass, "sass", false, "exec sass --watch resources/scss:resources/css")
-	flag.Parse()
-
-	if sass {
-		launchSass()
+	const cmdFormat = "\033[90muse\033[00m gomac [-h] [-help] [options...] [build | sass]"
+	cmds := conf.Load(&config)
+	if len(cmds) != 1 {
+		fmt.Println("\033[91mbad cmd format\033[00m")
+		fmt.Println(cmdFormat)
 		return
 	}
-
-	if err := build(false); err != nil {
-		log.Error(err)
-		return
+	if err := config.check(); err != nil {
+		fmt.Printf("\033[91m%v\033[00m\n", err)
 	}
 
-	conf, err := readConfig(confName)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			log.Error(err)
+	switch cmd := cmds[0]; cmd {
+	case "build":
+		if err := build(); err != nil {
+			fmt.Println(err)
 			return
 		}
 
-		conf = defaultConfig()
-		err = saveConfig(conf, confName)
-	}
-
-	if err = createPackage(conf); err != nil {
-		log.Error(err)
-		return
-	}
-
-	if err = createExec(conf); err != nil {
-		log.Error(err)
-		return
-	}
-
-	if err = createPlist(conf); err != nil {
-		log.Error(err)
-		return
-	}
-
-	if err = syncResources(conf, force, verb); err != nil {
-		log.Error(err)
-		return
-	}
-
-	if len(conf.Icon) != 0 {
-		if err = generateIcon(conf); err != nil {
-			log.Error(err)
+	case "sass":
+		if err := launchSass(); err != nil {
+			fmt.Println(err)
+			return
 		}
+
+	default:
+		fmt.Println("\033[91munknown cmd:\033[00m", cmd)
+		fmt.Println(cmdFormat)
+		return
 	}
+}
+
+func build() error {
+	if err := gobuild(); err != nil {
+		return err
+	}
+
+	if err := createPackage(); err != nil {
+		return err
+	}
+
+	if err := createExec(); err != nil {
+		return err
+	}
+
+	if err := createResources(); err != nil {
+		return err
+	}
+
+	if err := syncResources(); err != nil {
+		return err
+	}
+
+	if err := generateIcon(); err != nil {
+		return err
+	}
+
+	if err := createPlist(); err != nil {
+		return err
+	}
+	return nil
 }

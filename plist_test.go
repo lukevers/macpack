@@ -1,28 +1,23 @@
 package main
 
-import (
-	"os"
-	"testing"
-)
+import "testing"
 
 func TestCreatePlist(t *testing.T) {
-	conf := defaultConfig()
-	conf.Icon = "murlok.png"
-	conf.SupportedFiles = []string{
+	config.Icon = "murlok.png"
+	config.SupportedFiles = []string{
 		"public.gif",
 	}
 
-	createPackage(conf)
-	defer os.RemoveAll(conf.Name + ".app")
+	createPackage()
+	defer removePackage()
 
-	if err := createPlist(conf); err != nil {
+	if err := createPlist(); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestCreatePlistError(t *testing.T) {
-	conf := defaultConfig()
-	if err := createPlist(conf); err == nil {
+	if err := createPlist(); err == nil {
 		t.Error("createPlist should return an error")
 	}
 }

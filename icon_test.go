@@ -1,20 +1,16 @@
 package main
 
-import (
-	"os"
-	"testing"
-)
+import "testing"
 
 func TestGenerateIcon(t *testing.T) {
-	conf := defaultConfig()
-	conf.Icon = "logo.png"
+	config.Icon = "logo.png"
 
-	createPackage(conf)
-	defer os.RemoveAll(conf.Name + ".app")
+	createPackage()
+	defer removePackage()
 
-	syncResources(conf, true, false)
+	syncResources()
 
-	if err := generateIcon(conf); err != nil {
+	if err := generateIcon(); err != nil {
 		t.Error(err)
 	}
 }
