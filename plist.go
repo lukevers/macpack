@@ -1,7 +1,10 @@
 package main
 
-import "text/template"
-import "path/filepath"
+import (
+	"path/filepath"
+	"text/template"
+)
+
 import "os"
 
 const plistTmpl = `
@@ -35,11 +38,17 @@ const plistTmpl = `
 		<string>MacOSX</string>
 	</array>
 
-	<key>CFBundleVersion</key>
+	<key>CFBundleShortVersionString</key>
 	<string>{{.Version}}</string>
+
+	<key>CFBundleVersion</key>
+	<string>{{.BuildNumber}}</string>
 
 	<key>LSMinimumSystemVersion</key>
 	<string>{{.DeploymentTarget}}</string>
+
+	<key>LSApplicationCategoryType</key>
+	<string>{{.Category}}</string>
 
 	<key>NSHumanReadableCopyright</key>
 	<string>{{html .Copyright}}</string>
@@ -49,21 +58,20 @@ const plistTmpl = `
 
 	<key>NSAppTransportSecurity</key>
 	<dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-    </dict>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+	</dict>
 
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-        	<string>Supported files</string>
+			<string>Supported files</string>
 			<key>CFBundleTypeRole</key>
 			<string>{{.Role}}</string>
 			<key>LSItemContentTypes</key>
-			<array>
-				{{range .SupportedFiles}}<string>{{.}}</string>
-				{{end}}
+			<array>{{range .SupportedFiles}}
+				<string>{{.}}</string>{{end}}
 			</array>
 		</dict>
 	</array>
@@ -71,19 +79,18 @@ const plistTmpl = `
 </plist>
     `
 
-func createPlist() error {
-	plistName := filepath.Join(config.Name+".app", "Contents", "Info.plist")
+func createPlist(cfg Config) error {
+	plistName := filepath.Join(cfg.appName(), "Contents", "Info.plist")
 	f, err := os.Create(plistName)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	conf := config
-	if len(conf.Icon) != 0 {
-		conf.Icon = epureIconName(config.Icon)
+	if len(cfg.Icon) != 0 {
+		cfg.Icon = epureIconName(cfg.Icon)
 	}
 
 	tmpl := template.Must(template.New("plist").Parse(plistTmpl))
-	return tmpl.Execute(f, config)
+	return tmpl.Execute(f, cfg)
 }

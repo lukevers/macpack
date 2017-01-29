@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -14,56 +15,55 @@ import (
 
 // Config represents the configuration of the app to be packaged.
 type Config struct {
-	// Context options.
-	Verbose   bool `conf:"v,omitempty" help:"Verbose mode"`
-	Overwrite bool `conf:"overwrite"   help:"Resources directory will be entirely copied, overwriting existing files"`
-
-	// Build options.
-	Name             string       `conf:"name"              help:"Package name, menu bar/dock display name"`
-	ID               string       `conf:"id"                help:"UTI representing the app"`
-	Version          string       `conf:"version"           help:"Version of the app"`
-	Icon             string       `conf:"icon"              help:"The app icon as .png file. Provide a big one, required icon sizes will be auto generated"`
-	DevRegion        string       `conf:"dev-region"        help:"Development region"`
-	DeploymentTarget string       `conf:"deployment-target" help:"MacOS version"`
-	Copyright        string       `conf:"copyright"         help:"Human readable copyright"`
-	Role             string       `conf:"role"              help:"Application role: Editor|Viewer|Shell|None"`
-	Sandbox          bool         `conf:"sandbox"           help:"Defines if the app will run in sandbox mode"`
-	Capabilities     capabilities `conf:"capabilities"      help:"Capabilities" conf:"App capabilities. Required by the Mac App Store. Requires sandbox mode"`
-	SupportedFiles   []string     `conf:"supported-files"   help:"List of UTI representing the file types the app can open"`
+	Name             string       `json:"name"              help:"Package name, menu bar/dock display name."`
+	ID               string       `json:"id"                help:"UTI representing the app."`
+	Version          string       `json:"version"           help:"Version of the app (minified form eg 1.42)."`
+	BuildNumber      int          `json:"build-number"      help:"Build number."`
+	Icon             string       `json:"icon"              help:"The app icon as .png file. Provide a big one! Other required icon sizes will be auto generated."`
+	DevRegion        string       `json:"dev-region"        help:"Development region."`
+	DeploymentTarget string       `json:"deployment-target" help:"MacOS version."`
+	Copyright        string       `json:"copyright"         help:"Human readable copyright."`
+	Role             string       `json:"role"              help:"Application role: Editor|Viewer|Shell|None."`
+	Category         string       `json:"category"          help:"Applicaton category type.\nSee https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html#//apple_ref/doc/uid/TP40009250-SW8."`
+	Sandbox          bool         `json:"sandbox"           help:"Defines if the app will run in sandbox mode."`
+	Capabilities     capabilities `json:"capabilities"      help:"App capabilities. Required by the Mac App Store. Requires sandbox mode."`
+	Store            bool         `json:"store"             help:"Creates a .pkg ready to be uploaded with Application Loader."`
+	SignID           string       `json:"sign-id"           help:"signing id. security find-identity -v -p codesigning (to see available ids)."`
+	SupportedFiles   []string     `json:"supported-files"   help:"List of UTI representing the file types the app can open."`
 }
 
 type capabilities struct {
-	Network    networkCap    `conf:"network"     help:"Network capabilities"`
-	Hardware   harwareCap    `conf:"hardware"    help:"Hardware capabilities"`
-	AppData    appDataCap    `conf:"app-data"    help:"Application data capabilities"`
-	FileAccess fileAccessCap `conf:"file-access" help:"File access capabilities"`
+	Network    networkCap    `json:"network"     help:"Network capabilities."`
+	Hardware   harwareCap    `json:"hardware"    help:"Hardware capabilities."`
+	AppData    appDataCap    `json:"app-data"    help:"Application data capabilities."`
+	FileAccess fileAccessCap `json:"file-access" help:"File access capabilities."`
 }
 
 type networkCap struct {
-	In  bool `conf:"in"  help:"Incoming connections (Server)"`
-	Out bool `conf:"out" help:"Outgoing connections (Client)"`
+	In  bool `json:"in"  help:"Incoming connections (Server)."`
+	Out bool `json:"out" help:"Outgoing connections (Client)."`
 }
 
 type harwareCap struct {
-	Camera     bool `conf:"camera"     help:"Use of camera"`
-	Microphone bool `conf:"microphone" help:"Use of microphone"`
-	USB        bool `conf:"usb"        help:"Use of USB"`
-	Printing   bool `conf:"printing"   help:"Use of printer"`
-	Bluetooth  bool `conf:"bluetooth"  help:"Use of bluetooth"`
+	Camera     bool `json:"camera"     help:"Use of camera."`
+	Microphone bool `json:"microphone" help:"Use of microphone."`
+	USB        bool `json:"usb"        help:"Use of USB."`
+	Printing   bool `json:"printing"   help:"Use of printer."`
+	Bluetooth  bool `json:"bluetooth"  help:"Use of bluetooth."`
 }
 
 type appDataCap struct {
-	Contacts bool `conf:"contacts" help:"Access contacts"`
-	Location bool `conf:"location" help:"Access location"`
-	Calendar bool `conf:"calendar" help:"Access calendar"`
+	Contacts bool `json:"contacts" help:"Access contacts."`
+	Location bool `json:"location" help:"Access location."`
+	Calendar bool `json:"calendar" help:"Access calendar."`
 }
 
 type fileAccessCap struct {
-	UserSelected fileAccess `conf:"user-selected" help:"Access files from file pickers"`
-	Downloads    fileAccess `conf:"downloads"     help:"Access default Downloads directory"`
-	Pictures     fileAccess `conf:"pictures"      help:"Access default Pictures directory"`
-	Music        fileAccess `conf:"music"         help:"Access default Music directory"`
-	Movies       fileAccess `conf:"movies"        help:"Access default Movies directory"`
+	UserSelected fileAccess `json:"user-selected" help:"Access files from file pickers: read-only|read-write|\"\"."`
+	Downloads    fileAccess `json:"downloads"     help:"Access default Downloads directory: read-only|read-write|\"\"."`
+	Pictures     fileAccess `json:"pictures"      help:"Access default Pictures directory: read-only|read-write|\"\"."`
+	Music        fileAccess `json:"music"         help:"Access default Music directory: read-only|read-write|\"\"."`
+	Movies       fileAccess `json:"movies"        help:"Access default Movies directory: read-only|read-write|\"\"."`
 }
 
 type fileAccess string
@@ -73,6 +73,17 @@ const (
 	fileReadAccess      fileAccess = "read-only"
 	fileReadWriteAccess fileAccess = "read-write"
 )
+
+func (c Config) appName() string {
+	return c.Name + ".app"
+}
+
+func commandsString() string {
+	b := bytes.Buffer{}
+	fmt.Fprintf(&b, "build\t Builds the .app.\n")
+	fmt.Fprintf(&b, "sass\t Launches sass --watch resources/scss/:resources/css/.\n")
+	return b.String()
+}
 
 func defaultConfig() Config {
 	wd, err := os.Getwd()
@@ -84,7 +95,8 @@ func defaultConfig() Config {
 	return Config{
 		Name:             name,
 		ID:               fmt.Sprintf("%v.%v", os.Getenv("USER"), name),
-		Version:          "1.0.0.0",
+		Version:          "1.0",
+		BuildNumber:      1,
 		DevRegion:        "en",
 		DeploymentTarget: "10.12",
 		Copyright:        fmt.Sprintf("Copyright © 2017 %v. All rights reserved", os.Getenv("USER")),
@@ -101,7 +113,6 @@ func defaultConfig() Config {
 
 func (c Config) check() error {
 	validName := regexp.MustCompile(`^([A-Za-z0-9_]|[\-])+$`)
-	validVersion := regexp.MustCompile(`^[0-9]+([\.][0-9]+){3}$`)
 	validUTI := regexp.MustCompile(`^([A-Za-z0-9]|[\-]|[\.])+$`)
 	validMinVersion := regexp.MustCompile(`^[0-9]+[\.][0-9]+$`)
 
@@ -113,8 +124,8 @@ func (c Config) check() error {
 		return fmt.Errorf("id from config must contain alphanumeric characters, '-' or '.' : %v", c.ID)
 	}
 
-	if !validVersion.MatchString(c.Version) {
-		return fmt.Errorf("version from config must follow the pattern x.x.x.x where x is a non negative number: %v", c.Version)
+	if !validMinVersion.MatchString(c.Version) {
+		return fmt.Errorf("version from config must follow the pattern x.x where x is a non negative number: %v", c.Version)
 	}
 
 	if !validMinVersion.MatchString(c.DeploymentTarget) {

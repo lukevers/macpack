@@ -3,11 +3,8 @@ package main
 import (
 	"bufio"
 	"io"
-	"os/exec"
-
 	"os"
-
-	"github.com/murlokswarm/log"
+	"os/exec"
 )
 
 func execCmd(name string, arg ...string) error {
@@ -41,10 +38,7 @@ func printOutput(r io.Reader, output io.Writer) {
 			if err == io.EOF {
 				return
 			}
-
-			log.Error(err)
 		}
-
 		output.Write(line)
 	}
 }

@@ -13,9 +13,9 @@ import (
 )
 
 func generateIcon() error {
-	iconName := filepath.Join(config.Name+".app", "Contents", "Resources", config.Icon)
-	iconsetName := epureIconName(config.Icon) + ".iconset"
-	iconsetName = filepath.Join(config.Name+".app", "Contents", "Resources", iconsetName)
+	iconName := filepath.Join(cfg.Name+".app", "Contents", "Resources", cfg.Icon)
+	iconsetName := epureIconName(cfg.Icon) + ".iconset"
+	iconsetName = filepath.Join(cfg.Name+".app", "Contents", "Resources", iconsetName)
 
 	stats, err := os.Stat(iconName)
 	if err != nil {

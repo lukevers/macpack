@@ -27,7 +27,7 @@ func TestConfigCheckName(t *testing.T) {
 
 func TestConfigCheckVersion(t *testing.T) {
 	conf := defaultConfig()
-	conf.Version = "1.0.0.42"
+	conf.Version = "1.42"
 
 	if err := conf.check(); err != nil {
 		t.Error(err)
@@ -38,12 +38,12 @@ func TestConfigCheckVersion(t *testing.T) {
 		t.Error("checkConfig should return an error")
 	}
 
-	conf.Version = "1.42"
+	conf.Version = "1.42.4.4"
 	if err := conf.check(); err == nil {
 		t.Error("checkConfig should return an error")
 	}
 
-	conf.Version = "1.42.f.1"
+	conf.Version = "1.f"
 	if err := conf.check(); err == nil {
 		t.Error("checkConfig should return an error")
 	}

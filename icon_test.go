@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestGenerateIcon(t *testing.T) {
-	config.Icon = "logo.png"
+	cfg.Icon = "logo.png"
 
 	createPackage()
 	defer removePackage()

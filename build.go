@@ -10,14 +10,11 @@ import (
 
 func gobuild() error {
 	args := []string{"build", "-ldflags", "-s"}
-	if config.Verbose {
-		args = append(args, "-v")
-	}
 	return execCmd("go", args...)
 }
 
 func createPackage() error {
-	name := config.Name + ".app"
+	name := cfg.Name + ".app"
 	macOSName := filepath.Join(name, "Contents", "MacOS")
 	resourcesName := filepath.Join(name, "Contents", "Resources")
 
@@ -28,12 +25,12 @@ func createPackage() error {
 }
 
 func removePackage() {
-	name := config.Name + ".app"
+	name := cfg.Name + ".app"
 	os.RemoveAll(name)
 }
 
 func createExec() error {
-	execName := filepath.Join(config.Name+".app", "Contents", "MacOS", config.Name)
+	execName := filepath.Join(cfg.Name+".app", "Contents", "MacOS", cfg.Name)
 	currentExecName := goExecName()
 
 	fi, err := os.Stat(currentExecName)
@@ -65,18 +62,13 @@ func syncResources() error {
 		return err
 	}
 
-	resourcesName := filepath.Join(config.Name+".app", "Contents", "Resources")
+	resourcesName := filepath.Join(cfg.Name+".app", "Contents", "Resources")
 	args := []string{
 		"resources/",
 		resourcesName,
 		"-r",
 		"--delete",
-	}
-	if !config.Overwrite {
-		args = append(args, "--update")
-	}
-	if config.Verbose {
-		args = append(args, "-v")
+		"--update",
 	}
 	return execCmd("rsync", args...)
 }
