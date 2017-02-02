@@ -12,29 +12,34 @@ import (
 	"github.com/murlokswarm/log"
 )
 
-func generateIcon(conf Config) error {
-	iconName := filepath.Join(conf.Name+".app", "Contents", "Resources", conf.Icon)
-	iconsetName := epureIconName(conf.Icon) + ".iconset"
-	iconsetName = filepath.Join(conf.Name+".app", "Contents", "Resources", iconsetName)
+func generateIcon() error {
+	iconName := filepath.Join(cfg.Name+".app", "Contents", "Resources", cfg.Icon)
+	iconsetName := epureIconName(cfg.Icon) + ".iconset"
+	iconsetName = filepath.Join(cfg.Name+".app", "Contents", "Resources", iconsetName)
 
-	f, err := os.Open(iconName)
+	stats, err := os.Stat(iconName)
 	if err != nil {
 		return err
 	}
+	if stats.IsDir() {
+		return nil
+	}
 
+	if err := os.Mkdir(iconsetName, os.ModeDir|0755); err != nil {
+		return err
+	}
+	defer os.RemoveAll(iconsetName)
+
+	f, err := os.Open(iconName)
+	if err != nil {
+		return nil
+	}
 	defer f.Close()
 
 	img, err := png.Decode(f)
 	if err != nil {
 		return err
 	}
-
-	if err := os.Mkdir(iconsetName, os.ModeDir|0755); err != nil {
-		return err
-	}
-
-	defer os.RemoveAll(iconsetName)
-
 	createIconsetImg(img, iconsetName, 512, 512, 2)
 	createIconsetImg(img, iconsetName, 512, 512, 1)
 	createIconsetImg(img, iconsetName, 256, 256, 2)
@@ -45,7 +50,6 @@ func generateIcon(conf Config) error {
 	createIconsetImg(img, iconsetName, 32, 32, 1)
 	createIconsetImg(img, iconsetName, 16, 16, 2)
 	createIconsetImg(img, iconsetName, 16, 16, 1)
-
 	return execCmd("iconutil", "-c", "icns", iconsetName)
 }
 

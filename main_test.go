@@ -1,12 +1,11 @@
 package main
 
-import (
-	"os"
-	"testing"
-)
+import "testing"
 
-func TestMain(t *testing.T) {
-	conf := defaultConfig()
-	defer os.RemoveAll(conf.Name + ".app")
-	main()
+func TestBuild(t *testing.T) {
+	cfg = defaultConfig()
+	if err := build(); err != nil {
+		removePackage()
+		t.Error(err)
+	}
 }

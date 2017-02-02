@@ -13,40 +13,65 @@ go get -u github.com/murlokswarm/macpack
 
 ## Usage
 In a directory where the package name is ```main```,
-```go
-package main
 ```
-
-launch:
+macpack build
 ```
-macpack
-```
-**macpack** will automatically create these directories:
+**macpack** will automatically create these directories and files:
 - resources
 - resources/css
+- mac.json
 
 ## Customize build
-Build can be customized by providing a JSON named mac.json.
+Build can be customized by modifying ```mac.json```.
 
-```js
+eg:
+```json
 {
-    "name": "Hello",            // Name displayed in menu and dock
-    "version": "1.0.0.0",       // x.x.x.x where x is non negative number
-    "icon": "",                 // Name of .png relative to the resources dir
-    "id": "murlok.Hello",       // UTI in reverse-DNS format with (A-Za-z0-9), (-) and (.) eg com.murlok.Hello-World
-    "os-min-version": "10.12",  // >= 10.12
-    "role": "None",             // Editor | Viewer | Shell | None
-    "sandbox": true,            // Sandbox mode
-    "supported-files": []       // Slice of UTI representing types of the supported files
+  "name": "Jubiz",
+  "id": "maxence.Jubiz",
+  "version": "1.0",
+  "build-number": 4243,
+  "icon": "jubiz.png",
+  "dev-region": "en",
+  "deployment-target": "10.12",
+  "copyright": "Copyright © 2017 maxence. All rights reserved",
+  "role": "None",
+  "category": "public.app-category.photography",
+  "sandbox": true,
+  "capabilities": {
+    "network": {
+      "in": false,
+      "out": true
+    },
+    "hardware": {
+      "camera": false,
+      "microphone": false,
+      "usb": false,
+      "printing": false,
+      "bluetooth": false
+    },
+    "app-data": {
+      "contacts": false,
+      "location": false,
+      "calendar": false
+    },
+    "file-access": {
+      "user-selected": "",
+      "downloads": "",
+      "pictures": "",
+      "music": "",
+      "movies": ""
+    }
+  },
+  "app-store": false,
+  "supported-files": []
 }
 ```
-
-This JSON is auto generated if nonexistent.
 
 ## Sass
 [Sass](http://sass-lang.com/guide) can be used with:
 ```
-macpack -sass
+macpack sass
 ```
 
 This launches sass with watch mode.
