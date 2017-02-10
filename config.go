@@ -30,6 +30,7 @@ type Config struct {
 	Store            bool         `json:"store"             help:"Creates a .pkg ready to be uploaded with Application Loader."`
 	SignID           string       `json:"sign-id"           help:"signing id. security find-identity -v -p codesigning (to see available ids)."`
 	SupportedFiles   []string     `json:"supported-files"   help:"List of UTI representing the file types the app can open."`
+	LdFlags          string       `json:"ldflags"           help:"Linker flags"`
 }
 
 type capabilities struct {

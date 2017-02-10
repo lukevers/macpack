@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 )
 
 func gobuild() error {
-	args := []string{"build", "-ldflags", "-s"}
+	args := []string{"build", "-ldflags", fmt.Sprintf("-s %s", cfg.LdFlags)}
 	return execCmd("go", args...)
 }
 
