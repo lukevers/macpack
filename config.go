@@ -114,7 +114,7 @@ func defaultConfig() Config {
 func (c Config) check() error {
 	validName := regexp.MustCompile(`^([A-Za-z0-9_]|[\-])+$`)
 	validUTI := regexp.MustCompile(`^([A-Za-z0-9]|[\-]|[\.])+$`)
-	validMinVersion := regexp.MustCompile(`^[0-9]+[\.][0-9]+$`)
+	validMinVersion := regexp.MustCompile(`^[0-9]+([\.][0-9]+){1,2}$`)
 
 	if !validName.MatchString(c.Name) {
 		return fmt.Errorf("name from config must contain alphanumeric characters, '_' or '-' : %v", c.Name)
