@@ -129,7 +129,7 @@ func (c Config) check() error {
 	}
 
 	if !validMinVersion.MatchString(c.DeploymentTarget) {
-		return fmt.Errorf("deployment-target from config must follow the pattern x.x x.x.x where x is a non negative number: %v", c.DeploymentTarget)
+		return fmt.Errorf("deployment-target from config must follow the pattern x.x or x.x.x where x is a non negative number: %v", c.DeploymentTarget)
 	}
 
 	macOSDeploymentTarget := strings.Split(c.DeploymentTarget, ".")
